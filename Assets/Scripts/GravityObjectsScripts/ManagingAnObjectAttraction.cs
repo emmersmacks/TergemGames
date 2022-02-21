@@ -1,71 +1,73 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
 public class ManagingAnObjectAttraction : MonoBehaviour
 {
-    [SerializeField] private Transform targetTransform;
-    [SerializeField] private float ForceOfGravity;
+    [SerializeField] private Transform _targetTransform;
+    [SerializeField] private float _forceOfGravity;
 
-    private Rigidbody rigidbodyThisDesign;
-    private Vector3 DirectionToTarget;
+    private Rigidbody _rigidbodyThisDesign;
+    private Vector3 _directionToTarget;
 
-    private MovementStates CurrentState;
+    private MovementStates _currentState;
 
     const float DistanceToInclusionAttraction = 150f;
-    const float DistanceToStop = 2f;
+    const float TargetRadius = 2f;
+    const float ReboundForce = 5f;
+    const float ReboundDuration = 0.5f;
 
     private void Start()
     {
-        rigidbodyThisDesign = GetComponent<Rigidbody>();
-        CurrentState = MovementStates.goToTarget;
+        _rigidbodyThisDesign = GetComponent<Rigidbody>();
+        _currentState = MovementStates.goToTarget;
     }
 
     private void Update()
     {
-        if (DistanceToTarget() < DistanceToStop && CurrentState == MovementStates.goToTarget)
-            CurrentState = MovementStates.inTarget;
-        else if (DistanceToTarget() > DistanceToInclusionAttraction)
-            CurrentState = MovementStates.goToTarget;
+        if (GetDistanceToTarget() < TargetRadius && _currentState == MovementStates.goToTarget)
+            _currentState = MovementStates.inTarget;
+        else if (GetDistanceToTarget() > DistanceToInclusionAttraction)
+            _currentState = MovementStates.goToTarget;
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        CurrentState = MovementStates.bounce;
-        Vector3 ReboundDirection = (transform.position - collision.transform.position);
-        rigidbodyThisDesign.AddForce(ReboundDirection * 5, ForceMode.Impulse);
-        StartCoroutine("WaitGravity");
+        _currentState = MovementStates.bounce;
+        var reboundDirection = (transform.position - collision.transform.position);
+        _rigidbodyThisDesign.AddForce(reboundDirection * ReboundForce, ForceMode.Impulse);
+        StartCoroutine(nameof(ReboundDelay));
     }
 
     private void FixedUpdate()
     {
-        if(CurrentState == MovementStates.inTarget)
-            rigidbodyThisDesign.velocity = Vector3.zero;
-        else if(CurrentState == MovementStates.goToTarget)
-            MoveToTarget(ForceOfGravity);
+        if(_currentState == MovementStates.inTarget)
+            _rigidbodyThisDesign.velocity = Vector3.zero;
+        else if(_currentState == MovementStates.goToTarget)
+            MoveToTarget(_forceOfGravity);
     }
 
     private void MoveToTarget(float force)
     {
-        DirectionToTarget = (targetTransform.position - transform.position);
-        rigidbodyThisDesign.AddForce(DirectionToTarget * force, ForceMode.Force);
+        _directionToTarget = (_targetTransform.position - transform.position);
+        _rigidbodyThisDesign.AddForce(_directionToTarget * force, ForceMode.Force);
     }
 
-    private float DistanceToTarget()
+    private float GetDistanceToTarget()
     {
-        return Vector3.Distance(targetTransform.position, transform.position);
+        return Vector3.Distance(_targetTransform.position, transform.position);
     }
 
-    protected IEnumerator WaitGravity()
+    protected IEnumerator ReboundDelay()
     {
-        yield return new WaitForSeconds(0.5f);
-        CurrentState = MovementStates.goToTarget;
+        yield return new WaitForSeconds(ReboundDuration);
+        _currentState = MovementStates.goToTarget;
     }
-}
 
-enum MovementStates
-{
-    inTarget,
-    bounce,
-    goToTarget,
+    enum MovementStates
+    {
+        inTarget,
+        bounce,
+        goToTarget,
+    }
 }

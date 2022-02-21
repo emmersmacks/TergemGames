@@ -1,9 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class ResetCounters : MonoBehaviour
+public class CounterResetter : MonoBehaviour
 {
     public event Action Reset = default;
 

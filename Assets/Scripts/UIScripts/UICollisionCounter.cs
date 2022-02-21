@@ -5,31 +5,46 @@ using UnityEngine.UI;
 
 public class UICollisionCounter : MonoBehaviour
 {
-    [SerializeField] Text CollisionCountText;
-    [SerializeField] private ResetCounters resetScript;
+    [SerializeField] private Text _collisionCountText;
+    [SerializeField] private CounterResetter _resetScript;
 
-    public int collisionCount;
+    private int _collisionCount;
+    public int CollisionCount
+    {
+        get
+        {
+            return _collisionCount;
+        }
+        set
+        {
+            if (_collisionCount != value)
+            {
+                _collisionCount = value;
+                UpdateText();
+            }
+        }
+    }
 
     private void OnEnable()
     {
-        resetScript.Reset += ResetCounters;
+        _resetScript.Reset += ResetCounters;
     }
 
     private void OnDisable()
     {
-        resetScript.Reset += ResetCounters;
+        _resetScript.Reset += ResetCounters;
     }
 
     private void ResetCounters()
     {
-        collisionCount = 0;
+        CollisionCount = 0;
     }
 
-    private void Update()
+    private void UpdateText()
     {
-        if(collisionCount % 2 == 0)
+        if(CollisionCount % 2 == 0)
         {
-            CollisionCountText.text = collisionCount.ToString();
+            _collisionCountText.text = "Столкновений: " + (CollisionCount / 2).ToString();
         }
     }
 }

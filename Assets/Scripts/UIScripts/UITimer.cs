@@ -5,31 +5,31 @@ using UnityEngine.UI;
 
 public class UITimer : MonoBehaviour
 {
-    [SerializeField] private Text counterSeconds;
-    [SerializeField] private ResetCounters resetScript;
+    [SerializeField] private Text _counterSeconds;
+    [SerializeField] private CounterResetter _resetScript;
 
-    private float timeInSeconds;
+    private float _timeInSeconds;
 
     private void OnEnable()
     {
-        resetScript.Reset += ResetTimer;
+        _resetScript.Reset += ResetTimer;
     }
 
     private void OnDisable()
     {
-        resetScript.Reset += ResetTimer;
+        _resetScript.Reset += ResetTimer;
     }
 
     private void ResetTimer()
     {
-        timeInSeconds = 0;
+        _timeInSeconds = 0;
     }
 
     private void Update()
     {
-        timeInSeconds += Time.deltaTime;
-        int secondsNumber = (int)(timeInSeconds % 60);
+        _timeInSeconds += Time.deltaTime;
+        int secondsNumber = (int)(_timeInSeconds % 60);
 
-        counterSeconds.text = secondsNumber.ToString();
+        _counterSeconds.text = "Времени прошло: " + secondsNumber.ToString();
     }
 }
